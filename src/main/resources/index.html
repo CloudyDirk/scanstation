@@ -9,11 +9,14 @@
   	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 </head>
 <body>
-  <div id="scanstation" ng-controller="ScanController">
-    <input ng-model="documenttitle" type="text" />
-  <button id="startscan" ng-click="startscan()">Scan starten</button>
-  <button id="nextpage" ng-click="nextpage()">Nächste Seite</button>
-  <button id="stopscan" ng-click="stopscan()">Scan beenden</button>
+  <div id="scanstation" ng-controller="ScanController" class="container-fluid">
+    <div class="form-group">
+    <label for="documenttitle">Dokumenten-Titel</label>
+    <input type="text" class="form-control" id="documenttitle" ng-model="documenttitle" placeholder="Dokumenten-Titel"/>
+  </div>
+  <button id="startscan" ng-click="startscan()" class="btn btn-default">Scan starten</button>
+  <button id="nextpage" ng-click="nextpage()" class="btn">Nächste Seite</button>
+  <button id="stopscan" ng-click="stopscan()" class="btn">Scan beenden</button>
   <div>{{status}}</div>
 </div>
 <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.js"></script>
