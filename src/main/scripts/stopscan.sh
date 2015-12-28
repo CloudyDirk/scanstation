@@ -1,14 +1,18 @@
 #!/bin/bash
 # Stop scan
-ls ../scans/page*.pnm | while read p; do echo $p; q=`echo $p | sed 's/page\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p | pnmtotiff -lzw > $q; done
 
-tiffcp -c lzw ../scans/tiff* ../scans/document.tif
+scandir=/home/pi/scanstation/scans
 
-tiff2pdf -z ../scans/document.tif -o ../scans/document.pdf -a "Dirk Guenther"
 
-pdfopt ../scans/document.pdf ../scans/document_opt.pdf
+ls $scandir/page*.pnm | while read p; do echo $p; q=`echo $p | sed 's/page\(.*\)\.pnm/tiff\1.tif/'`; echo $q; cat $p | pnmtotiff -lzw > $q; done
 
-rm *.pnm
-rm tiff*
-rm document.tif
-rm document.pdf
+tiffcp -c lzw $scandir/tiff* $scandir/document.tif
+
+tiff2pdf -z $scandir/document.tif -o $scandir/document.pdf -a "Dirk Guenther"
+
+pdfopt $scandir/document.pdf $scandir/document_opt.pdf
+
+rm $scandir/*.pnm
+rm $scandir/tiff*
+rm $scandir/document.tif
+rm $scandir/document.pdf

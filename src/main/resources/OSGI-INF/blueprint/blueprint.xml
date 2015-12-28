@@ -5,6 +5,25 @@
        http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
+       <!-- Default Resource Mapping -->
+   	<service id="defaultResourceService" interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping">
+   		<bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping">
+   			<property name="alias" value="/"/>
+   			<property name="path" value=""/>
+   		</bean>
+   	</service>
+
+     <service id="welcomeFileService" interface="org.ops4j.pax.web.extender.whiteboard.WelcomeFileMapping">
+   	  <bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultWelcomeFileMapping">
+   			<property name="redirect" value="true"/>
+   			<property name="welcomeFiles">
+   			  <array>
+   				<value>index.html</value>
+   			  </array>
+   			</property>
+   		</bean>
+   	</service>
+
  <!-- to setup camel servlet with OSGi HttpService -->
   <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
 
@@ -13,12 +32,12 @@
     <property name="httpService" ref="httpService"/>
     <property name="servlet" ref="camelServlet"/>
   </bean>
-  
+
   <bean class="org.apache.camel.component.servlet.CamelHttpTransportServlet" id="camelServlet"/>
-  
- 
+
+
     <camelContext xmlns="http://camel.apache.org/schema/blueprint">
-		<restConfiguration bindingMode="off" component="servlet" contextPath="/scan" enableCORS="true"/>	  
+		<restConfiguration bindingMode="off" component="servlet" contextPath="/scan" enableCORS="true"/>
 
 		<rest path="/ping">
 			<get uri="/" >
@@ -36,9 +55,9 @@
 			<get uri="/stop" produces="application/json">
 				<to uri="direct:stop" />
 			</get>
-			<post uri="/">
+			<get uri="/upload" produces="application/json">
 				<to uri="direct:uploaddoc" />
-			</post>
+			</get>
 			<delete uri="/">
 				<to uri="direct:cancel" />
 			</delete>
@@ -50,12 +69,12 @@
 			<constant>Hello, I'm ready to scan</constant>
 		</transform>
 	  </route>
-	  
+
 	  <route>
 		<from uri="direct:start" />
 		<to uri="exec:///home/pi/scanstation/scripts/startscan.sh" />
 	  </route>
-	  
+
 	  <route>
 		<from uri="direct:nextpage" />
 		<to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
@@ -64,13 +83,20 @@
 	  <route>
 		<from uri="direct:stop" />
 		<to uri="exec:///home/pi/scanstation/scripts/stopscan.sh" />
+		<to uri="direct:uploaddoc" />
 	  </route>
 
 	  <route>
 		<from uri="direct:uploaddoc" />
-		<to uri="cmis:///home/pi" />
-	  </route>
-	  
+		<to uri="exec:cat?args=/home/pi/scanstation/scans/document_opt.pdf" />
+		<setHeader headerName="cmis:contentStreamMimeType"><constant>application/pdf</constant></setHeader>
+		<setHeader headerName="cmis:name"><constant>Scan-Dokument</constant></setHeader>
+		<setHeader headerName="cmis:objectTypeId"><constant>cmis:document</constant></setHeader>
+		<setHeader headerName="CamelCMISFolderPath"><constant>/Sites/dokumente/documentLibrary/Eingang</constant></setHeader>
+		<to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=dirk&amp;password=Cloud57-nsd11" />
+		<to uri="exec:rm?args=/home/pi/scanstation/scans/document_opt.pdf" />
+		</route>
+
 	  <route>
 		<from uri="direct:cancel" />
 		<to uri="exec:///home/pi/scanstation/scripts/cancelscan.sh" />

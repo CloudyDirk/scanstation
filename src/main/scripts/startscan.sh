@@ -1,3 +1,4 @@
 #!/bin/bash
 # Scan Images
-scanimage --mode Color --depth 8 --resolution 200 -x 210 -y 297  > ../scans/page01.pnm
+scandir=/home/pi/scanstation/scans
+scanimage --mode Color --depth 8 --resolution 200 -x 210 -y 297  > $scandir/page01.pnm
