@@ -1,13 +1,15 @@
-var scanApp = angular.module("scanstation", ["$http"]);
+var scanApp = angular.module("scanstation", []);
 
 scanApp.service("scanservice", function($http) {
-  this.startscan = function (callback) {
-    $http.get("/scan/batch/start")
-      .success(callback)
-      .error(function(callback) {
-        alert("No data");
-        callback(undefined);
-      });
+  this.startscan = function (documenttitle) {
+    var config = {
+      "params" : {
+        "documenttitle": documenttitle
+      };
+    };
+    $http.get("/scan/batch/start", config)
+      .success()
+      .error();
   };
   this.nextpage = function (callback) {
     $http.get("/scan/batch/nextpage")
@@ -41,5 +43,6 @@ scanApp.controller("ScanController", function($scope, scanservice) {
   $scope.stopscan = function() {
     scanservice.stopscan(function($scope) {
     $scope.status="Scan beendet";
-  });
+    });
+  };
 });

@@ -142,7 +142,38 @@
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>1.7</version>
+      <executions>
+      <execution>
+          <id>server-copy</id>
+          <goals>
+              <goal>run</goal>
+          </goals>
+          <phase>package</phase>
+          <configuration>
+              <target>
+                  <echo message="Push to server/home/"/>
+                  <scp trust="yes"
+                      todir="pi:Raspberry-nsd11@192.168.2.158:/home/pi/apache-karaf-4.0.3/deploy">
+                      <fileset dir="${basedir}/target">
+                          <include name="**/*.jar"/>
+                      </fileset>
+                  </scp>
+              </target>
+          </configuration>
+      </execution>
+      </executions>
+      <dependencies>
+      <dependency>
+          <groupId>org.apache.ant</groupId>
+          <artifactId>ant-jsch</artifactId>
+          <version>1.8.2</version>
+      </dependency>
+      </dependencies>
+      </plugin>
     </plugins>
   </build>
 
