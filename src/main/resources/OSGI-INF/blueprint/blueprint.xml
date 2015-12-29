@@ -72,11 +72,13 @@
 
 	  <route>
 		<from uri="direct:start" />
-		<to uri="exec:///home/pi/scanstation/scripts/startscan.sh" />
+    <setHeader headerName="CamelExecCommandArgs"><constant>1</constant></setHeader>
+		<to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
 	  </route>
 
 	  <route>
 		<from uri="direct:nextpage" />
+    <setHeader headerName="CamelExecCommandArgs"><simple>${headers.page}</simple></setHeader>
 		<to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
 	  </route>
 
@@ -90,7 +92,7 @@
 		<from uri="direct:uploaddoc" />
 		<to uri="exec:cat?args=/home/pi/scanstation/scans/document_opt.pdf" />
 		<setHeader headerName="cmis:contentStreamMimeType"><constant>application/pdf</constant></setHeader>
-		<setHeader headerName="cmis:name"><constant>Scan-Dokument</constant></setHeader>
+		<setHeader headerName="cmis:name"><simple>${headers.documenttitle}</simple></setHeader>
 		<setHeader headerName="cmis:objectTypeId"><constant>cmis:document</constant></setHeader>
 		<setHeader headerName="CamelCMISFolderPath"><constant>/Sites/dokumente/documentLibrary/Eingang</constant></setHeader>
 		<to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=dirk&amp;password=Cloud57-nsd11" />
