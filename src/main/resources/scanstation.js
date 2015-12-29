@@ -78,6 +78,7 @@ scanApp.controller("ScanController", function($scope, scanservice) {
       }
       $scope.inprogress=false;
       $scope.disabled=false;
+      $scope.documenttitle="";
     };
     scanservice.stopscan(callback, documenttitle);
     $scope.status="Dokument wird verarbeitet...";
