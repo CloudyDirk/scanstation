@@ -32,10 +32,10 @@ scanApp.service("scanservice", function($http) {
 scanApp.controller("ScanController", function($scope, scanservice) {
 
   $scope.inprogress = false;
-  $scope.page = 1;
+  var page = 1;
 
   $scope.startscan = function() {
-    $scope.page = 1;
+    page = 1;
     var callback = function(data, status, headers, config) {
       if (status == 200) {
         $scope.status="Seite 1 erfolgreich eingescannt";
@@ -52,7 +52,7 @@ scanApp.controller("ScanController", function($scope, scanservice) {
     $scope.disabled=true;
   };
   $scope.nextpage = function() {
-    $scope.page += 1;
+    page += 1;
     var callback = function(data, status, headers, config) {
       if (status == 200) {
         $scope.status="Seite " + page + " erfolgreich eingescannt";
@@ -64,7 +64,7 @@ scanApp.controller("ScanController", function($scope, scanservice) {
       $scope.disabled=false;
     };
     scanservice.nextpage(callback, page);
-    $scope.status="Scannen von Seite " + page;
+    $scope.status="Scannen von Seite " + page + "...";
     $scope.disabled=true;
   };
   $scope.stopscan = function() {
