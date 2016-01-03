@@ -1,110 +1,134 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-
-       <!-- Default Resource Mapping -->
-   	<service id="defaultResourceService" interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping">
-   		<bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping">
-   			<property name="alias" value="/"/>
-   			<property name="path" value=""/>
-   		</bean>
-   	</service>
-
-     <service id="welcomeFileService" interface="org.ops4j.pax.web.extender.whiteboard.WelcomeFileMapping">
-   	  <bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultWelcomeFileMapping">
-   			<property name="redirect" value="true"/>
-   			<property name="welcomeFiles">
-   			  <array>
-   				<value>index.html</value>
-   			  </array>
-   			</property>
-   		</bean>
-   	</service>
-
- <!-- to setup camel servlet with OSGi HttpService -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"       xsi:schemaLocation="       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+  <!-- Default Resource Mapping -->
+  <service id="defaultResourceService" interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping">
+    <bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping">
+      <property name="alias" value="/"/>
+      <property name="path" value=""/>
+    </bean>
+  </service>
+  <service id="welcomeFileService" interface="org.ops4j.pax.web.extender.whiteboard.WelcomeFileMapping">
+    <bean class="org.ops4j.pax.web.extender.whiteboard.runtime.DefaultWelcomeFileMapping">
+      <property name="redirect" value="true"/>
+      <property name="welcomeFiles">
+        <array>
+          <value>index.html</value>
+        </array>
+      </property>
+    </bean>
+  </service>
+  <!-- to setup camel servlet with OSGi HttpService -->
   <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
-
   <bean class="org.apache.camel.component.servlet.osgi.OsgiServletRegisterer" destroy-method="unregister" init-method="register">
     <property name="alias" value="/scan"/>
     <property name="httpService" ref="httpService"/>
     <property name="servlet" ref="camelServlet"/>
   </bean>
-
   <bean class="org.apache.camel.component.servlet.CamelHttpTransportServlet" id="camelServlet"/>
-
-
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint">
-		<restConfiguration bindingMode="off" component="servlet" contextPath="/scan" enableCORS="true"/>
-
-		<rest path="/ping">
-			<get uri="/" >
-				<to uri="direct:ping" />
-			</get>
-		</rest>
-
-		<rest path="/batch">
-			<get uri="/start" produces="application/json">
-				<to uri="direct:start" />
-			</get>
-			<get uri="/nextpage" produces="application/json">
-				<to uri="direct:nextpage" />
-			</get>
-			<get uri="/stop" produces="application/json">
-				<to uri="direct:stop" />
-			</get>
-			<get uri="/upload" produces="application/json">
-				<to uri="direct:uploaddoc" />
-			</get>
-			<delete uri="/">
-				<to uri="direct:cancel" />
-			</delete>
-		</rest>
-
-	  <route>
-		<from uri="direct:ping" />
-		<transform>
-			<constant>Hello, I'm ready to scan</constant>
-		</transform>
-	  </route>
-
-	  <route>
-		<from uri="direct:start" />
-    <setHeader headerName="CamelExecCommandArgs"><constant>1</constant></setHeader>
-		<to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
-	  </route>
-
-	  <route>
-		<from uri="direct:nextpage" />
-    <setHeader headerName="CamelExecCommandArgs"><simple>${headers.page}</simple></setHeader>
-		<to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
-	  </route>
-
-	  <route>
-		<from uri="direct:stop" />
-		<to uri="exec:///home/pi/scanstation/scripts/stopscan.sh" />
-		<to uri="direct:uploaddoc" />
-	  </route>
-
-	  <route>
-		<from uri="direct:uploaddoc" />
-		<to uri="exec:cat?args=/home/pi/scanstation/scans/document_opt.pdf" />
-		<setHeader headerName="cmis:contentStreamMimeType"><constant>application/pdf</constant></setHeader>
-		<setHeader headerName="cmis:name"><simple>${headers.documenttitle}</simple></setHeader>
-		<setHeader headerName="cmis:objectTypeId"><constant>cmis:document</constant></setHeader>
-		<setHeader headerName="CamelCMISFolderPath"><constant>/Sites/dokumente/documentLibrary/Eingang</constant></setHeader>
-		<to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=dirk&amp;password=Cloud57-nsd11" />
-		<to uri="exec:rm?args=/home/pi/scanstation/scans/document_opt.pdf" />
-		</route>
-
-	  <route>
-		<from uri="direct:cancel" />
-		<to uri="exec:///home/pi/scanstation/scripts/cancelscan.sh" />
-		<setHeader headerName="Exchange.HTTP_RESPONSE_CODE"><constant>204</constant></setHeader>
-	  </route>
-
-    </camelContext>
-
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    <restConfiguration bindingMode="off" component="servlet" contextPath="/scan" enableCORS="true"/>
+    <rest path="/ping">
+      <get uri="/" >
+        <to uri="direct:ping" />
+      </get>
+    </rest>
+    <rest path="/">
+      <get uri="/start" produces="application/json">
+        <to uri="direct:start" />
+      </get>
+      <get uri="/startsinglepage" produces="application/json">
+        <to uri="direct:startsinglepage" />
+      </get>
+      <get uri="/nextpage" produces="application/json">
+        <to uri="direct:nextpage" />
+      </get>
+      <get uri="/lastpage" produces="application/json">
+        <to uri="direct:lastpage" />
+      </get>
+      <get uri="/stop" produces="application/json">
+        <to uri="seda:stop" />
+      </get>
+      <get uri="/upload" produces="application/json">
+        <to uri="direct:uploaddoc" />
+      </get>
+      <delete uri="/">
+        <to uri="direct:cancel" />
+      </delete>
+    </rest>
+    <route>
+      <from uri="direct:ping" />
+      <transform>
+        <constant>Hello, I'm ready to scan</constant>
+      </transform>
+    </route>
+    <route>
+      <from uri="direct:start" />
+      <setHeader headerName="CamelExecCommandArgs">
+        <constant>1</constant>
+      </setHeader>
+      <to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
+    </route>
+    <route>
+      <from uri="direct:startsinglepage" />
+      <setHeader headerName="CamelExecCommandArgs">
+        <constant>1</constant>
+      </setHeader>
+      <to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
+      <to uri="seda:stop" />
+    </route>
+    <route>
+      <from uri="direct:nextpage" />
+      <setHeader headerName="CamelExecCommandArgs">
+        <simple>${headers.page}</simple>
+      </setHeader>
+      <to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
+    </route>
+    <route>
+      <from uri="direct:lastpage" />
+      <setHeader headerName="CamelExecCommandArgs">
+        <simple>${headers.page}</simple>
+      </setHeader>
+      <to uri="exec:///home/pi/scanstation/scripts/nextpage.sh" />
+      <to uri="seda:stop" />
+    </route>
+    <route>
+      <from uri="seda:stop" />
+      <to uri="exec:///home/pi/scanstation/scripts/stopscan.sh" />
+      <to uri="direct:uploaddoc" />
+    </route>
+    <route>
+      <from uri="direct:uploaddoc" />
+      <to uri="exec:cat?args=/home/pi/scanstation/scans/document_opt.pdf" />
+      <setHeader headerName="cmis:contentStreamMimeType">
+        <constant>application/pdf</constant>
+      </setHeader>
+      <setHeader headerName="cmis:name">
+        <simple>${headers.documenttitle}</simple>
+      </setHeader>
+      <setHeader headerName="cmis:objectTypeId">
+        <constant>cmis:document</constant>
+      </setHeader>
+      <setHeader headerName="CamelCMISFolderPath">
+        <constant>/Sites/dokumente/documentLibrary/Eingang</constant>
+      </setHeader>
+      <to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=dirk&amp;password=Cloud57-nsd11" />
+      <to uri="exec:rm?args=/home/pi/scanstation/scans/document_opt.pdf" />
+    </route>
+    <route>
+      <from uri="direct:cancel" />
+      <to uri="exec:///home/pi/scanstation/scripts/cancelscan.sh" />
+      <setHeader headerName="Exchange.HTTP_RESPONSE_CODE">
+        <constant>204</constant>
+      </setHeader>
+    </route>
+    <route>
+      <from uri="direct:scan" />
+      <setHeader headerName="page"><simple>${headers.page}</simple></setHeader>
+      <setHeader headerName="CamelExecCommandArgs">
+        <simple>--mode Color --depth 8 --resolution 200 -x 210 -y 297</simple>
+      </setHeader>
+      <to uri="exec:scanimage" />
+      <to uri="file:filename" />
+    </route>
+  </camelContext>
 </blueprint>

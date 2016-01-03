@@ -18,10 +18,12 @@
       <input type="text" class="form-control" id="documenttitle" ng-model="documenttitle" placeholder="Dokumenten-Titel"/>
     </div>
   <button id="startscan" ng-click="startscan()" ng-disabled="disabled" class="btn btn-default">Scan starten</button>
+  <button id="startsinglepagescan" ng-click="singlepagescan()" ng-disabled="disabled" class="btn btn-default">Single page scan starten</button>
 </div>
   <div id="controlpage" class="jumbotron" ng-show="inprogress">
 
   <button id="nextpage" ng-click="nextpage()" ng-disabled="disabled" class="btn">Nächste Seite</button>
+  <button id="lastpage" ng-click="lastpage()" ng-disabled="disabled" class="btn">Letzte Seite</button>
   <button id="stopscan" ng-click="stopscan()"  ng-disabled="disabled" class="btn">Scan beenden</button>
 </div>
 <div class="panel panel-default">
