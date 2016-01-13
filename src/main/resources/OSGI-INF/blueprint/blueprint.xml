@@ -111,7 +111,7 @@
       <setHeader headerName="CamelCMISFolderPath">
         <constant>/Sites/dokumente/documentLibrary/Eingang</constant>
       </setHeader>
-      <to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=dirk&amp;password=Cloud57-nsd11" />
+      <to uri="cmis://http://alfresco.cloud57.de:80/alfresco/api/-default-/public/cmis/versions/1.0/atom/?repositoryId=-default-&amp;username=username&amp;password=password" />
       <to uri="exec:rm?args=/home/pi/scanstation/scans/document_opt.pdf" />
     </route>
     <route>
